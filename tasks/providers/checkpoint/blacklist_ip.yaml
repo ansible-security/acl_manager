@@ -1,0 +1,32 @@
+- name: Search source IP host object
+  checkpoint_object_facts:
+    object_filter: "asa-{{ source_ip }}"
+    object_type: host
+  register: out
+
+- name: Create source IP host object
+  checkpoint_host:
+    name: "asa-{{ source_ip }}"
+    ip_address: "{{ source_ip }}"
+  when: not out['ansible_facts']['checkpoint_objects']
+
+- name: Search destination IP host object
+  checkpoint_object_facts:
+    object_filter: "asa-{{ destination_ip }}"
+    object_type: host
+  register: out
+
+- name: Create destination IP host object
+  checkpoint_host:
+    name: "asa-{{ destination_ip }}"
+    ip_address: "{{ destination_ip }}"
+  when: not out['ansible_facts']['checkpoint_objects']
+
+- name: Create access rule to deny access from source to destination
+  checkpoint_access_rule:
+    layer: Network
+    position: top
+    name: "asa-drop-{{ source_ip }}-to-{{ destination_ip }}"
+    source: "asa-{{ source_ip }}"
+    destination: "asa-{{ destination_ip }}"
+    action: drop
