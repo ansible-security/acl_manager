@@ -14,6 +14,7 @@ Red Hat Enterprise Linux 7.x, or derived Linux distribution such as CentOS 7,
 Scientific Linux 7, etc
 
 Functions
+---------
 
 * `blacklist_ip` - This blacklist a source IP  address from accessing a destination IP address
 
