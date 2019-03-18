@@ -1,1 +1,1 @@
-- include_tasks: "{{ role_path }}/tasks/providers/{{ firewall_provider }}/blacklist_url.yaml"
+- include_tasks: "{{ role_path }}/tasks/providers/{{ ansible_network_os }}/blacklist_url.yaml"
