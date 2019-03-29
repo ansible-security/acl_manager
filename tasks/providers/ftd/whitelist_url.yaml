@@ -1,0 +1,103 @@
+---
+- name: Check if Whitelist object is defined
+  fail:
+    msg: "Missidng required param: whitelist_url_type"
+  when: whitelist_url_type is not defined
+  delegate_to: localhost
+
+- name: Whitelist URL Object Mandatory Params - whitelist_name, whitelist_url
+  fail:
+    msg: "Missing any one of mandatory required parameters: whitelist_name, whitelist_url."
+  when:
+    - whitelist_url_type == "url"
+    - whitelist_name is not defined or whitelist_url is not defined
+  delegate_to: localhost
+
+- name: Whitelist URL Feed Mandatory Params - whitelist_name
+  fail:
+    msg: "Missing mandatory required parameters: whitelist_name"
+  when:
+    - whitelist_url_type == "feed"
+    - whitelist_name is not defined
+  delegate_to: localhost
+
+- name: Creating URL object
+  ftd_configuration:
+    operation: upsertURLObject
+    data:
+      version: "{{ whitelist_version | default(omit) }}"
+      name: "{{ whitelist_name }}"
+      description: "{{ whitelist_url_description | default(omit) }}"
+      url: "{{ whitelist_url }}"
+      id: "{{ whitelist_id | default(omit) }}"
+      type: "{{ whitelist_url_object | default('urlobject') }}"
+    register_as: url_object
+  when: whitelist_url_type == "url"
+
+- name: Getting URL Feed
+  ftd_configuration:
+    operation: getURLFeedCategoryList
+    filters:
+      name: "{{ whitelist_name }}"
+    register_as: url_object
+  when: whitelist_url_type == "feed"
+
+- name: Find Security Intelligence URL Policy
+  ftd_configuration:
+    operation: getSecurityIntelligenceURLPolicyList
+    register_as: policies
+  when: whitelist_url_type is defined
+
+- name: Setup SecurityIntelligenceURLPolicy via URL Object
+  ftd_configuration:
+    operation: editSecurityIntelligenceURLPolicy
+    data:
+      id: "{{ policies[0]['id'] }}"
+      name: "{{ policies[0]['name'] }}"
+      version: "{{ policies[0]['version'] }}"
+      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
+      whitelist: "{{ policies[0]['whitelist'] + [url_object] }}"
+      type: securityintelligenceurlpolicy
+    path_params:
+      objId: "{{ policies[0]['id'] }}"
+  register: setup_status_url
+  when: whitelist_url_type == "url"
+
+- name: Setup SecurityIntelligenceURLPolicy via URL Feed
+  ftd_configuration:
+    operation: editSecurityIntelligenceURLPolicy
+    data:
+      id: "{{ policies[0]['id'] }}"
+      name: "{{ policies[0]['name'] }}"
+      version: "{{ policies[0]['version'] }}"
+      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
+      whitelist: "{{ policies[0]['whitelist'] + [url_object[0]] }}"
+      type: securityintelligenceurlpolicy
+    path_params:
+      objId: "{{ policies[0]['id'] }}"
+  register: setup_status_feed
+  when: whitelist_url_type == "feed"
+
+- name: Start deployment
+  ftd_configuration:
+    operation: addDeployment
+    register_as: deployment_job
+  when: setup_status_url.changed or setup_status_feed.changed
+
+- name: Poll deployment status until the job is finished
+  ftd_configuration:
+    operation: getDeployment
+    path_params:
+      objId: '{{ deployment_job.id }}'
+    register_as: deployment_status
+  until: deployment_status.endTime != -1
+  retries: 100
+  delay: 3
+  when: setup_status_url.changed or setup_status_feed.changed
+
+- name: Stop the playbook if the deployment failed
+  fail:
+    msg: 'Deployment failed. Status: {{ deployment_status.statusMessages }}'
+  when:
+    - setup_status_url.changed or setup_status_feed.changed
+    - deployment_status.state != 'DEPLOYED'
