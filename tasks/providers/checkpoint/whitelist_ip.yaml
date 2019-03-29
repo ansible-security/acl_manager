@@ -1,3 +1,4 @@
+---
 - name: Delete access rule that deny access from source to destination
   checkpoint_access_rule:
     state: absent
