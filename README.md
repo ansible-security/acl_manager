@@ -38,7 +38,7 @@ Example Playbook
       vars:
         source_ip: 192.168.0.10
         destination_ip: 192.168.0.11
-        firewall_provider: checkpoint
+        ansible_network_os: checkpoint
 ```
 
 * `Cisco FTD whitelist Network address`
@@ -56,7 +56,7 @@ Example Playbook
         whitelist_name: permit_network
         whitelist_subtype: NETWORK
         whitelist_value: 192.168.1.0/24
-        firewall_provider: cisco_ftd
+        ansible_network_os: cisco_ftd
 ```
 
 * `Cisco FTD blacklist Network address`
@@ -74,7 +74,7 @@ Example Playbook
         blacklist_name: block_network
         blacklist_subtype: NETWORK
         blacklist_value: 192.168.2.0/24
-        firewall_provider: cisco_ftd
+        ansible_network_os: cisco_ftd
 ```
 
 * `Cisco FTD whitelist URL address`
@@ -92,7 +92,7 @@ Example Playbook
         whitelist_name: GoogleURL
         whitelist_url_description: URL for Google
         whitelist_url: www.google.com
-        firewall_provider: cisco_ftd
+        ansible_network_os: cisco_ftd
 ```
 
 * `Cisco FTD blacklist URL address`
@@ -110,7 +110,7 @@ Example Playbook
         blacklist_name: Attacker_Url
         blacklist_url_description: Detected Attacker URL
         blacklist_url: www.attacker.com
-        firewall_provider: cisco_ftd
+        ansible_network_os: cisco_ftd
 ```
 
 
