@@ -1,3 +1,4 @@
+---
 - name: Search source IP host object
   checkpoint_object_facts:
     object_filter: "asa-{{ source_ip }}"
