@@ -9,16 +9,16 @@
   fail:
     msg: "Missing any one of mandatory required parameters: whitelist_name, whitelist_url."
   when:
-  - whitelist_url_type == "url"
-  - whitelist_name is not defined or whitelist_url is not defined
+    - whitelist_url_type == "url"
+    - whitelist_name is not defined or whitelist_url is not defined
   delegate_to: localhost
 
 - name: Whitelist URL Feed Mandatory Params - whitelist_name
   fail:
     msg: "Missing mandatory required parameters: whitelist_name"
   when:
-  - whitelist_url_type == "feed"
-  - whitelist_name is not defined
+    - whitelist_url_type == "feed"
+    - whitelist_name is not defined
   delegate_to: localhost
 
 - name: Creating URL object
@@ -99,6 +99,5 @@
   fail:
     msg: 'Deployment failed. Status: {{ deployment_status.statusMessages }}'
   when:
-  - setup_status_url.changed or setup_status_feed.changed
-  - deployment_status.state != 'DEPLOYED'
-  
+    - setup_status_url.changed or setup_status_feed.changed
+    - deployment_status.state != 'DEPLOYED'

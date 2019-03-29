@@ -9,16 +9,16 @@
   fail:
     msg: "Missing any one of mandatory required parameters: blacklist_name, blacklist_url"
   when:
-  - blacklist_url_type == "url"
-  - blacklist_name is not defined or blacklist_url is not defined
+    - blacklist_url_type == "url"
+    - blacklist_name is not defined or blacklist_url is not defined
   delegate_to: localhost
 
 - name: Blacklist Network Feed Mandatory Params - blacklist_name
   fail:
     msg: "Missing mandatory required parameters: blacklist_name"
   when:
-  - blacklist_url_type == "feed"
-  - blacklist_name is not defined
+    - blacklist_url_type == "feed"
+    - blacklist_name is not defined
   delegate_to: localhost
 
 - name: Creating URL object
@@ -99,6 +99,5 @@
   fail:
     msg: 'Deployment failed. Status: {{ deployment_status.statusMessages }}'
   when:
-  - setup_status_url.changed or setup_status_feed.changed
-  - deployment_status.state != 'DEPLOYED'
-
+    - setup_status_url.changed or setup_status_feed.changed
+    - deployment_status.state != 'DEPLOYED'
