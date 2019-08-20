@@ -113,6 +113,29 @@ Example Playbook
         ansible_network_os: cisco_ftd
 ```
 
+* `FortiOS blacklist IP address`
+
+```
+- hosts: fortios
+  connection: httpapi
+
+  tasks:
+    - include_role:
+        name: acl_manager
+        tasks_from: blacklist_ip
+      vars:
+        policy_id: 10
+        policy_name: block_ip_test_example_policy
+        source_interface: any
+        destination_interface: any
+        source_ip: ip_test_example
+        destination_ip: all
+        service: HTTP
+        policy_schedule: always
+        policy_logtraffic: all
+        policy_logtraffic_start: disable
+```
+
 
 License
 -------

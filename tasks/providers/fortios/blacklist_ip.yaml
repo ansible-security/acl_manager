@@ -1,0 +1,22 @@
+---
+- name: Create access policy to deny access from source to destination
+  fortios_firewall_policy:
+    https: False
+    state: "present"
+    firewall_policy:
+      policyid: "{{ policy_id }}"
+      name: "{{ policy_name }}"
+      action: "deny"
+      srcintf:
+        - name: "{{ source_interface }}"
+      dstintf:
+        - name: "{{ destination_interface }}"
+      srcaddr: 
+        - name: "{{ source_ip }}"
+      dstaddr:
+        - name: "{{ destination_ip }}"
+      service: 
+        - name: "{{ service }}"
+      schedule: "{{ policy_schedule }}"
+      logtraffic: "{{ policy_logtraffic }}"
+      logtraffic_start: "{{ policy_logtraffic_start }}"
