@@ -8,6 +8,7 @@ An [Ansible](https://ansible.com) role to manage access control lists for many f
 Current supported list of providers:
 * checkpoint
 * Cisco FTD
+* FortiOS
 
 Requirements
 ------------
