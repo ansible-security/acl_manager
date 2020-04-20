@@ -1,52 +1,52 @@
 ---
-- name: Check if Whitelist object is defined
+- name: Check if Block object type is defined
   fail:
-    msg: "Missidng required param: whitelist_url_type"
-  when: whitelist_url_type is not defined
+    msg: "Missidng required param: block_url_type"
+  when: block_url_type is not defined
   delegate_to: localhost
 
-- name: Whitelist URL Object Mandatory Params - whitelist_name, whitelist_url
+- name: Block URL Object Mandatory Params - block_name, block_url
   fail:
-    msg: "Missing any one of mandatory required parameters: whitelist_name, whitelist_url."
+    msg: "Missing any one of mandatory required parameters: block_name, block_url"
   when:
-    - whitelist_url_type == "url"
-    - whitelist_name is not defined or whitelist_url is not defined
+    - block_url_type == "url"
+    - block_name is not defined or block_url is not defined
   delegate_to: localhost
 
-- name: Whitelist URL Feed Mandatory Params - whitelist_name
+- name: Block Network Feed Mandatory Params - block_name
   fail:
-    msg: "Missing mandatory required parameters: whitelist_name"
+    msg: "Missing mandatory required parameters: block_name"
   when:
-    - whitelist_url_type == "feed"
-    - whitelist_name is not defined
+    - block_url_type == "feed"
+    - block_name is not defined
   delegate_to: localhost
 
 - name: Creating URL object
   ftd_configuration:
     operation: upsertURLObject
     data:
-      version: "{{ whitelist_version | default(omit) }}"
-      name: "{{ whitelist_name }}"
-      description: "{{ whitelist_url_description | default(omit) }}"
-      url: "{{ whitelist_url }}"
-      id: "{{ whitelist_id | default(omit) }}"
-      type: "{{ whitelist_url_object | default('urlobject') }}"
+      version: "{{ block_version | default(omit) }}"
+      name: "{{ block_name }}"
+      description: "{{ block_url_description | default(omit) }}"
+      url: "{{ block_url }}"
+      id: "{{ block_id | default(omit) }}"
+      type: "{{ block_url_object | default('urlobject') }}"
     register_as: url_object
-  when: whitelist_url_type == "url"
+  when: block_url_type == "url"
 
 - name: Getting URL Feed
   ftd_configuration:
     operation: getURLFeedCategoryList
     filters:
-      name: "{{ whitelist_name }}"
+      name: "{{ block_name }}"
     register_as: url_object
-  when: whitelist_url_type == "feed"
+  when: block_url_type == "feed"
 
 - name: Find Security Intelligence URL Policy
   ftd_configuration:
     operation: getSecurityIntelligenceURLPolicyList
     register_as: policies
-  when: whitelist_url_type is defined
+  when: url_object is defined
 
 - name: Setup SecurityIntelligenceURLPolicy via URL Object
   ftd_configuration:
@@ -55,13 +55,13 @@
       id: "{{ policies[0]['id'] }}"
       name: "{{ policies[0]['name'] }}"
       version: "{{ policies[0]['version'] }}"
-      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
-      whitelist: "{{ policies[0]['whitelist'] + [url_object] }}"
+      blockForBlacklist: "{{ policies[0]['blockForBlacklist'] + [url_object] }}"
+      whitelist: "{{ policies[0]['whitelist'] }}"
       type: securityintelligenceurlpolicy
     path_params:
       objId: "{{ policies[0]['id'] }}"
   register: setup_status_url
-  when: whitelist_url_type == "url"
+  when: block_url_type == "url"
 
 - name: Setup SecurityIntelligenceURLPolicy via URL Feed
   ftd_configuration:
@@ -70,13 +70,13 @@
       id: "{{ policies[0]['id'] }}"
       name: "{{ policies[0]['name'] }}"
       version: "{{ policies[0]['version'] }}"
-      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
-      whitelist: "{{ policies[0]['whitelist'] + [url_object[0]] }}"
+      blockForBlacklist: "{{ policies[0]['blockForBlacklist'] + [url_object[0]] }}"
+      whitelist: "{{ policies[0]['whitelist'] }}"
       type: securityintelligenceurlpolicy
     path_params:
       objId: "{{ policies[0]['id'] }}"
   register: setup_status_feed
-  when: whitelist_url_type == "feed"
+  when: block_url_type == "feed"
 
 - name: Start deployment
   ftd_configuration:

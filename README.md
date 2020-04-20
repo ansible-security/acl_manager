@@ -18,15 +18,15 @@ Scientific Linux 7, etc
 Functions
 ---------
 
-* `blacklist_ip` - This blacklist a source IP address from accessing a destination IP address.
-* `whitelist_ip` - This whitelist a Network address or Host address.
-* `blacklist_url` - This blacklist a URL feed/address from being accessed.
-* `whitelist_url` - This whitelist a URL feed/address, which in turn can be accessed without being blocked.
+* `block_ip` - This block/blacklist a source IP address from accessing a destination IP address.
+* `unblock_ip` - This unblock/whitelist a Network address or Host address.
+* `block_url` - This block/blacklist a URL feed/address from being accessed.
+* `unblock_url` - This unblock/whitelist a URL feed/address, which in turn can be accessed without being blocked.
 
 Example Playbook
 ----------------
 
-* `Checkpoint blacklist IP address`
+* `Checkpoint block IP address`
 
 ```
 - hosts: checkpoint
@@ -35,14 +35,14 @@ Example Playbook
   tasks: 
     - include_role:
         name: acl_manager
-        tasks_from: blacklist_ip
+        tasks_from: block_ip
       vars:
         source_ip: 192.168.0.10
         destination_ip: 192.168.0.11
         ansible_network_os: checkpoint
 ```
 
-* `Cisco FTD whitelist Network address`
+* `Cisco FTD unblock Network address`
 
 ```
 - hosts: ftd
@@ -51,16 +51,16 @@ Example Playbook
   tasks:
     - include_role:
         name: acl_manager
-        tasks_from: whitelist_ip
+        tasks_from: unblock_ip
       vars:
-        whitelist_network_type: network
-        whitelist_name: permit_network
-        whitelist_subtype: NETWORK
-        whitelist_value: 192.168.1.0/24
+        unblock_network_type: network
+        unblock_name: permit_network
+        unblock_subtype: NETWORK
+        unblock_value: 192.168.1.0/24
         ansible_network_os: cisco_ftd
 ```
 
-* `Cisco FTD blacklist Network address`
+* `Cisco FTD block Network address`
 
 ```
 - hosts: ftd
@@ -69,16 +69,16 @@ Example Playbook
   tasks:
     - include_role:
         name: acl_manager
-        tasks_from: blacklist_ip
+        tasks_from: block_ip
       vars:
-        blacklist_network_type: network
-        blacklist_name: block_network
-        blacklist_subtype: NETWORK
-        blacklist_value: 192.168.2.0/24
+        block_network_type: network
+        block_name: block_network
+        block_subtype: NETWORK
+        block_value: 192.168.2.0/24
         ansible_network_os: cisco_ftd
 ```
 
-* `Cisco FTD whitelist URL address`
+* `Cisco FTD unblock URL address`
 
 ```
 - hosts: checkpoint
@@ -87,16 +87,17 @@ Example Playbook
   tasks:
     - include_role:
         name: acl_manager
-        tasks_from: whitelist_url
+        tasks_from: unblock_url
       vars:
-        whitelist_url_type: url
-        whitelist_name: GoogleURL
-        whitelist_url_description: URL for Google
-        whitelist_url: www.google.com
+        unblock_url_type: url
+        unblock_name: GoogleURL
+        unblock_url_description: URL for Google
+        unblock_url: www.google.com
+
         ansible_network_os: cisco_ftd
 ```
 
-* `Cisco FTD blacklist URL address`
+* `Cisco FTD block URL address`
 
 ```
 - hosts: ftd
@@ -105,16 +106,16 @@ Example Playbook
   tasks:
     - include_role:
         name: acl_manager
-        tasks_from: blacklist_url
+        tasks_from: block_url
       vars:
-        blacklist_url_type: url
-        blacklist_name: Attacker_Url
-        blacklist_url_description: Detected Attacker URL
-        blacklist_url: www.attacker.com
+        block_url_type: url
+        block_name: Attacker_Url
+        block_url_description: Detected Attacker URL
+        block_url: www.attacker.com
         ansible_network_os: cisco_ftd
 ```
 
-* `FortiOS blacklist IP address`
+* `FortiOS block IP address`
 
 ```
 - hosts: fortios
@@ -123,7 +124,7 @@ Example Playbook
   tasks:
     - include_role:
         name: acl_manager
-        tasks_from: blacklist_ip
+        tasks_from: block_ip
       vars:
         policy_id: 10
         policy_name: block_ip_test_example_policy
