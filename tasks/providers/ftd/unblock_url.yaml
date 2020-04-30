@@ -1,52 +1,52 @@
 ---
-- name: Check if Blacklist object type is defined
+- name: Check if Unblock object is defined
   fail:
-    msg: "Missidng required param: blacklist_url_type"
-  when: blacklist_url_type is not defined
+    msg: "Missidng required param: unblock_url_type"
+  when: unblock_url_type is not defined
   delegate_to: localhost
 
-- name: Blacklist URL Object Mandatory Params - blacklist_name, blacklist_url
+- name: Unblock URL Object Mandatory Params - unblock_name, unblock_url
   fail:
-    msg: "Missing any one of mandatory required parameters: blacklist_name, blacklist_url"
+    msg: "Missing any one of mandatory required parameters: unblock_name, unblock_url."
   when:
-    - blacklist_url_type == "url"
-    - blacklist_name is not defined or blacklist_url is not defined
+    - unblock_url_type == "url"
+    - unblock_name is not defined or unblock_url is not defined
   delegate_to: localhost
 
-- name: Blacklist Network Feed Mandatory Params - blacklist_name
+- name: Unblock URL Feed Mandatory Params - unblock_name
   fail:
-    msg: "Missing mandatory required parameters: blacklist_name"
+    msg: "Missing mandatory required parameters: unblock_name"
   when:
-    - blacklist_url_type == "feed"
-    - blacklist_name is not defined
+    - unblock_url_type == "feed"
+    - unblock_name is not defined
   delegate_to: localhost
 
 - name: Creating URL object
   ftd_configuration:
     operation: upsertURLObject
     data:
-      version: "{{ blacklist_version | default(omit) }}"
-      name: "{{ blacklist_name }}"
-      description: "{{ blacklist_url_description | default(omit) }}"
-      url: "{{ blacklist_url }}"
-      id: "{{ blacklist_id | default(omit) }}"
-      type: "{{ blacklist_url_object | default('urlobject') }}"
+      version: "{{ unblock_version | default(omit) }}"
+      name: "{{ unblock_name }}"
+      description: "{{ unblock_url_description | default(omit) }}"
+      url: "{{ unblock_url }}"
+      id: "{{ unblock_id | default(omit) }}"
+      type: "{{ unblock_url_object | default('urlobject') }}"
     register_as: url_object
-  when: blacklist_url_type == "url"
+  when: unblock_url_type == "url"
 
 - name: Getting URL Feed
   ftd_configuration:
     operation: getURLFeedCategoryList
     filters:
-      name: "{{ blacklist_name }}"
+      name: "{{ unblock_name }}"
     register_as: url_object
-  when: blacklist_url_type == "feed"
+  when: unblock_url_type == "feed"
 
 - name: Find Security Intelligence URL Policy
   ftd_configuration:
     operation: getSecurityIntelligenceURLPolicyList
     register_as: policies
-  when: url_object is defined
+  when: unblock_url_type is defined
 
 - name: Setup SecurityIntelligenceURLPolicy via URL Object
   ftd_configuration:
@@ -55,13 +55,13 @@
       id: "{{ policies[0]['id'] }}"
       name: "{{ policies[0]['name'] }}"
       version: "{{ policies[0]['version'] }}"
-      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] + [url_object] }}"
-      whitelist: "{{ policies[0]['whitelist'] }}"
+      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
+      unblock: "{{ policies[0]['unblock'] + [url_object] }}"
       type: securityintelligenceurlpolicy
     path_params:
       objId: "{{ policies[0]['id'] }}"
   register: setup_status_url
-  when: blacklist_url_type == "url"
+  when: unblock_url_type == "url"
 
 - name: Setup SecurityIntelligenceURLPolicy via URL Feed
   ftd_configuration:
@@ -70,13 +70,13 @@
       id: "{{ policies[0]['id'] }}"
       name: "{{ policies[0]['name'] }}"
       version: "{{ policies[0]['version'] }}"
-      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] + [url_object[0]] }}"
-      whitelist: "{{ policies[0]['whitelist'] }}"
+      blacklistForBlock: "{{ policies[0]['blacklistForBlock'] }}"
+      unblock: "{{ policies[0]['unblock'] + [url_object[0]] }}"
       type: securityintelligenceurlpolicy
     path_params:
       objId: "{{ policies[0]['id'] }}"
   register: setup_status_feed
-  when: blacklist_url_type == "feed"
+  when: unblock_url_type == "feed"
 
 - name: Start deployment
   ftd_configuration:
