@@ -1,8 +1,6 @@
 acl_manager
 ===========
 
-# This content is currently under development and should not be considered production ready
-
 An [Ansible](https://ansible.com) role to manage access control lists for many firewall devices.
 
 Current supported list of providers:
