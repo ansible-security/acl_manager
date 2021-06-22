@@ -79,7 +79,7 @@ Example Playbook
 * `Cisco FTD unblock URL address`
 
 ```
-- hosts: checkpoint
+- hosts: ftd
   connection: httpapi
 
   tasks:
